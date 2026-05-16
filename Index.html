@@ -1,0 +1,257 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Nội Bộ Garena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #ffffff;
+        }
+        .bg-garena { background: linear-gradient(135deg, #e11d48 0%, #9f1239 100%); }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .hidden-section { display: none !important; }
+        .waiting-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Thanh Điều Hướng -->
+    <nav class="p-4 glass-card sticky top-0 z-50 flex justify-between items-center px-6">
+        <div class="flex items-center gap-2">
+            <div class="bg-red-600 p-1.5 rounded-lg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <span class="font-black italic text-xl tracking-tighter">GARENA VIP</span>
+        </div>
+        <div id="nav-actions">
+            <button onclick="toggleModal('login')" class="bg-garena px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">Đăng nhập</button>
+        </div>
+        <div id="user-info" class="hidden flex items-center gap-3">
+            <div class="text-right">
+                <p id="user-name" class="text-[10px] font-bold text-gray-400 uppercase">Admin</p>
+                <p id="user-money" class="text-xs font-black text-yellow-500">0 VNĐ</p>
+            </div>
+            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=100&h=100" class="w-10 h-10 rounded-full border-2 border-red-600">
+        </div>
+    </nav>
+
+    <!-- Trang Chủ -->
+    <main id="home" class="flex-grow flex flex-col items-center justify-center text-center p-6 animate__animated animate__fadeIn">
+        <div class="max-w-2xl">
+            <h1 class="text-5xl md:text-7xl font-black italic mb-6 leading-none">CỔNG RÚT <br><span class="text-red-600">KIM CƯƠNG</span></h1>
+            <p class="text-gray-400 text-sm md:text-base mb-10">Chào mừng đến với hệ thống nội bộ Garena. Chỉ dành cho nhân viên và CTV được cấp quyền.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="toggleModal('register')" class="bg-white text-black px-8 py-4 rounded-2xl font-black uppercase text-xs">Đăng ký tài khoản</button>
+                <button onclick="toggleModal('login')" class="bg-garena px-8 py-4 rounded-2xl font-black uppercase text-xs">Vào hệ thống</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Dashboard -->
+    <main id="dashboard" class="hidden-section flex-grow p-4 md:p-10 animate__animated animate__fadeIn">
+        <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cột Trái -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="glass-card rounded-[2.5rem] p-8 text-center">
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=200&h=200" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-red-600">
+                    <h2 id="profile-name" class="font-black text-xl italic uppercase">Hacker_Admin</h2>
+                    <div class="bg-black/50 rounded-2xl p-4 mt-4 border border-white/5">
+                        <p class="text-[10px] text-gray-500 uppercase font-bold">Ví nội bộ</p>
+                        <p id="profile-money" class="text-2xl font-black text-yellow-500">0 VNĐ</p>
+                    </div>
+                </div>
+                <div class="glass-card rounded-3xl p-6">
+                    <h3 class="text-red-500 font-black text-[10px] uppercase mb-4">Lịch sử hệ thống (Chờ duyệt)</h3>
+                    <div id="logs" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Cột Phải -->
+            <div class="lg:col-span-2">
+                <div class="glass-card rounded-[2.5rem] overflow-hidden">
+                    <div class="bg-white/5 p-6 border-b border-white/5">
+                        <h2 class="font-black uppercase text-sm italic text-red-500 tracking-widest">Giao diện rút Kim Cương</h2>
+                    </div>
+                    
+                    <div id="withdraw-form" class="p-8 space-y-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase ml-2">UID Game (Free Fire)</label>
+                            <input id="uid" type="number" class="w-full bg-black/40 border border-white/10 rounded-2xl p-5 mt-2 outline-none focus:border-red-600 font-bold" placeholder="Nhập ID người nhận">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase ml-2">Gói Kim Cương</label>
+                            <select id="package" class="w-full bg-black/40 border border-white/10 rounded-2xl p-5 mt-2 outline-none font-bold">
+                                <option value="1.000" data-price="20000">1.000 KC - 20.000đ</option>
+                                <option value="5.000" data-price="100000">5.000 KC - 100.000đ</option>
+                                <option value="10.000" data-price="200000">10.000 KC - 200.000đ</option>
+                                <option value="50.000" data-price="1000000">50.000 KC - Admin</option>
+                            </select>
+                        </div>
+                        <button onclick="handleWithdraw()" class="w-full bg-garena py-6 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:scale-[1.02] transition">Xác nhận rút ngay</button>
+                    </div>
+
+                    <div id="processing" class="hidden-section p-20 text-center">
+                        <div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+                        <p class="font-black uppercase italic text-xl">Đang kết nối Server...</p>
+                        <div class="w-full bg-white/5 h-1.5 rounded-full mt-10 overflow-hidden">
+                            <div id="bar" class="h-full bg-red-600 transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div id="success" class="hidden-section p-10 text-center animate__animated animate__zoomIn">
+                        <div class="w-20 h-20 bg-yellow-500/10 text-yellow-500 rounded-full mx-auto mb-6 flex items-center justify-center text-3xl waiting-pulse">⏳</div>
+                        <h3 class="text-3xl font-black italic uppercase mb-2">Đã Gửi Yêu Cầu</h3>
+                        <p class="text-gray-400 text-xs mb-8">Kim cương sẽ được chuyển vào ID sau khi được Admin duyệt.</p>
+                        <div class="bg-black/50 p-6 rounded-3xl border border-yellow-500/20 text-left space-y-3 mb-8">
+                            <div class="flex justify-between"><span class="text-[10px] text-gray-500 font-bold uppercase">ID Nhận:</span><span id="res-id" class="font-bold text-white">---</span></div>
+                            <div class="flex justify-between"><span class="text-[10px] text-gray-500 font-bold uppercase">Số lượng:</span><span id="res-kc" class="font-bold text-red-500 uppercase">---</span></div>
+                            <div class="flex justify-between"><span class="text-[10px] text-gray-500 font-bold uppercase">Trạng thái:</span><span class="font-bold text-yellow-500 italic">Chờ duyệt (24h)</span></div>
+                        </div>
+                        <button onclick="goBack()" class="w-full bg-white text-black py-4 rounded-2xl font-black uppercase text-xs">Quay về</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal (Login/Register) -->
+    <div id="modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden-section z-[100] flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm rounded-[2.5rem] p-10 text-center animate__animated animate__zoomIn">
+            <h2 id="modal-title" class="text-3xl font-black italic uppercase mb-8">Đăng Nhập</h2>
+            <div id="modal-content" class="space-y-4">
+                <input id="auth-user" type="text" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 outline-none focus:border-red-600 font-bold" placeholder="Tài khoản">
+                <input id="auth-pass" type="password" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 outline-none focus:border-red-600 font-bold" placeholder="Mật khẩu">
+                <button id="auth-btn" onclick="submitAuth()" class="w-full bg-garena py-5 rounded-2xl font-black uppercase text-xs shadow-lg">Xác nhận</button>
+            </div>
+            <p id="auth-err" class="text-red-500 text-[10px] mt-4 font-bold uppercase hidden"></p>
+            <button onclick="toggleModal()" class="mt-6 text-gray-500 text-[10px] font-bold uppercase">Đóng</button>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_USER = "hihi";
+        const ADMIN_PASS = "Vovantien";
+        let wallet = 5000000;
+        let currentMode = 'login';
+
+        function toggleModal(mode) {
+            const modal = document.getElementById('modal');
+            if(!mode) {
+                modal.classList.add('hidden-section');
+                return;
+            }
+            currentMode = mode;
+            document.getElementById('modal-title').innerText = mode === 'login' ? 'Đăng Nhập' : 'Đăng Ký';
+            document.getElementById('auth-err').classList.add('hidden');
+            modal.classList.remove('hidden-section');
+        }
+
+        function submitAuth() {
+            const u = document.getElementById('auth-user').value.trim();
+            const p = document.getElementById('auth-pass').value;
+            const err = document.getElementById('auth-err');
+
+            if(currentMode === 'register') {
+                err.innerText = "Hệ thống đăng ký bảo trì. Liên hệ Admin!";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            if(u === ADMIN_USER && p === ADMIN_PASS) {
+                document.getElementById('home').classList.add('hidden-section');
+                document.getElementById('nav-actions').classList.add('hidden-section');
+                document.getElementById('user-info').classList.remove('hidden');
+                document.getElementById('dashboard').classList.remove('hidden-section');
+                document.getElementById('modal').classList.add('hidden-section');
+                updateUI();
+                startLogs();
+            } else {
+                err.innerText = "Tài khoản hoặc mật khẩu không đúng!";
+                err.classList.remove('hidden');
+            }
+        }
+
+        function updateUI() {
+            const val = wallet.toLocaleString() + " VNĐ";
+            document.getElementById('user-money').innerText = val;
+            document.getElementById('profile-money').innerText = val;
+        }
+
+        function handleWithdraw() {
+            const id = document.getElementById('uid').value;
+            const sel = document.getElementById('package');
+            const kc = sel.value;
+            const price = parseInt(sel.options[sel.selectedIndex].dataset.price);
+
+            if(!id) return alert("Vui lòng nhập ID!");
+            if(wallet < price) return alert("Ví không đủ tiền!");
+
+            document.getElementById('withdraw-form').classList.add('hidden-section');
+            document.getElementById('processing').classList.remove('hidden-section');
+
+            let p = 0;
+            const itv = setInterval(() => {
+                p += 10;
+                document.getElementById('bar').style.width = p + "%";
+                if(p >= 100) {
+                    clearInterval(itv);
+                    wallet -= price;
+                    updateUI();
+                    document.getElementById('processing').classList.add('hidden-section');
+                    document.getElementById('success').classList.remove('hidden-section');
+                    document.getElementById('res-id').innerText = id;
+                    document.getElementById('res-kc').innerText = kc + " Kim Cương";
+                }
+            }, 200);
+        }
+
+        function goBack() {
+            document.getElementById('success').classList.add('hidden-section');
+            document.getElementById('withdraw-form').classList.remove('hidden-section');
+            document.getElementById('uid').value = "";
+            document.getElementById('bar').style.width = "0%";
+        }
+
+        function startLogs() {
+            const logBox = document.getElementById('logs');
+            const players = ["Tuan_FF", "Lan_Garena", "Minh_99", "Hoang_Hack", "Bich_Pro"];
+            const kcs = ["1.000", "5.000", "10.000"];
+
+            setInterval(() => {
+                const user = players[Math.floor(Math.random()*players.length)];
+                const kc = kcs[Math.floor(Math.random()*kcs.length)];
+                const div = document.createElement('div');
+                div.className = "bg-white/5 p-3 rounded-xl border-l-2 border-yellow-500 animate__animated animate__fadeInUp";
+                div.innerHTML = `
+                    <div class="flex justify-between text-[9px] font-bold">
+                        <span class="text-white uppercase">${user}</span>
+                        <span class="text-yellow-500 waiting-pulse">CHỜ DUYỆT</span>
+                    </div>
+                    <p class="text-[8px] text-gray-500 uppercase mt-1">Đã gửi ${kc} KC vào ID: ${Math.floor(Math.random()*9000000 + 1000000)}</p>
+                `;
+                logBox.prepend(div);
+                if(logBox.children.length > 5) logBox.removeChild(logBox.lastChild);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
+
+```
